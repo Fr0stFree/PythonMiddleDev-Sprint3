@@ -2,3 +2,4 @@ django==4.0.4
 uwsgi==2.0.22
 django-environ==0.11.2
 python-dotenv==1.0.0
+psycopg2-binary==2.9.7

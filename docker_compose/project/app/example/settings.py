@@ -1,6 +1,5 @@
 from pathlib import Path
 
-from dotenv import find_dotenv
 from environ import Env
 
 env = Env()
