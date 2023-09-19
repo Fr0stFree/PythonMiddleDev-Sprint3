@@ -1,21 +1,23 @@
 server {
     listen                          80 default_server;
+    listen                          [::]:80 default_server;
     server_name                     ${NGINX_HOST};
 
-    location /admin/ {
-        proxy_pass                  http://backend:8000;
+
+    location /media/ {
+        root                        /var/html/;
+        log_not_found               off;
+        expires                     1d;
     }
 
     location /static/ {
-        alias                       /opt/app/;
+        root                        /var/html/;
         log_not_found               off;
         expires                     3d;
     }
 
-    location /media/ {
-        root                        /opt/app/;
-        log_not_found               off;
-        expires                     1d;
+    location /admin/ {
+        proxy_pass                  http://backend:8000;
     }
 
     error_page                      404 /404.html;

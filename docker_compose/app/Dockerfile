@@ -8,6 +8,9 @@ ENV UWSGI_PROCESSES 1
 ENV UWSGI_THREADS 16
 ENV UWSGI_HARAKIRI 240
 ENV DJANGO_SETTINGS_MODULE 'example.settings'
+# TODO: Hide this
+ENV HTTP_PROXY=http://krasov_d:Gyber_5012@hqproxyusr.avp.ru:8080
+ENV HTTPS_PROXY=http://krasov_d:Gyber_5012@hqproxyusr.avp.ru:8080
 
 COPY run_uwsgi.sh run_uwsgi.sh
 COPY requirements.txt requirements.txt

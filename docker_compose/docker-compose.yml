@@ -3,18 +3,26 @@ name: 'movies-project'
 
 services:
   backend:
-    build: ./app
+    build: app
     container_name: backend
     restart: always
     volumes:
-      - static:/app/media
-      - media:/app/static
+      - static:/opt/app/static
+      - media:/opt/app/media
     networks:
       - movies-network
-    env_file:
-      - ./configs/.env
     depends_on:
       - db
+    environment:
+      - DJANGO_SECRET_KEY
+      - DEBUG
+      - ALLOWED_HOSTS
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_HOST
+      - POSTGRES_PORT
+      - POSTGRES_SEARCH_PATHS
 
   db:
     image: postgres:${POSTGRES_TAG}
@@ -54,8 +62,5 @@ networks:
 
 volumes:
   media:
-    driver: local
   static:
-    driver: local
   db-data:
-    driver: local
