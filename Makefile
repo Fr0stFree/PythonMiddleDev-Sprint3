@@ -1,5 +1,5 @@
-ENV_FILE_PATH := ./docker_compose/configs/.env
-COMPOSE_FILE_PATH := ./docker_compose/docker-compose.yml
+ENV_FILE_PATH := ./.env
+COMPOSE_FILE_PATH := ./docker-compose.yml
 
 .PHONY: build
 build:
