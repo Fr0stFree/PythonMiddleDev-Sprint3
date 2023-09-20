@@ -135,7 +135,7 @@ def fill_movies(apps, schema_editor) -> None:
 
 def remove_movies(apps, schema_editor) -> None:
     for schema in SQLITE_MODELS:
-        Model = apps.get_model('movies', schema.__name__)
+        Model = apps.get_model("movies", schema.__name__)  # noqa
         Model.objects.all().delete()
 
 

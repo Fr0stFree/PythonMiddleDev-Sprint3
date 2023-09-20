@@ -1,10 +1,7 @@
 from typing import Any
 
-from django.http import JsonResponse, HttpRequest
 from django.views.generic.detail import BaseDetailView
 from django.views.generic.list import BaseListView
-from django.contrib.postgres.aggregates import ArrayAgg
-from django.db.models import Q, QuerySet
 
 from .mixins import MoviesApiMixin
 
