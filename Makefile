@@ -7,6 +7,14 @@ build:
 	@docker compose -f $(COMPOSE_FILE_PATH) --env-file $(ENV_FILE_PATH) exec backend python manage.py collectstatic --noinput
 	@docker compose -f $(COMPOSE_FILE_PATH) --env-file $(ENV_FILE_PATH) exec backend python manage.py migrate
 
+.PHONY: start-db
+start-db:
+	@docker compose -f $(COMPOSE_FILE_PATH) --env-file $(ENV_FILE_PATH) up -d db
+
+.PHONY: stop-db
+stop-db:
+	@docker compose -f $(COMPOSE_FILE_PATH) --env-file $(ENV_FILE_PATH) stop db
+
 .PHONY: start
 start:
 	@docker compose -f $(COMPOSE_FILE_PATH) --env-file $(ENV_FILE_PATH) up -d
