@@ -4,8 +4,6 @@ COMPOSE_FILE_PATH := ./docker-compose.yml
 .PHONY: build
 build:
 	@docker compose -f $(COMPOSE_FILE_PATH) --env-file $(ENV_FILE_PATH) up -d --build
-	@docker compose -f $(COMPOSE_FILE_PATH) --env-file $(ENV_FILE_PATH) exec backend python manage.py collectstatic --noinput
-	@docker compose -f $(COMPOSE_FILE_PATH) --env-file $(ENV_FILE_PATH) exec backend python manage.py migrate
 
 .PHONY: start-db
 start-db:

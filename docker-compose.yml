@@ -42,6 +42,7 @@ services:
   nginx:
     image: nginx:${NGINX_TAG}
     container_name: nginx
+    restart: always
     volumes:
       - media:/var/html/media
       - static:/var/html/static
