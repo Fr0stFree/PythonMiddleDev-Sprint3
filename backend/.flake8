@@ -5,6 +5,7 @@ extend-ignore =
     VNE003,
     CCE001,
     I001,
+    I003,
     I004,
     I005,
     Q000,

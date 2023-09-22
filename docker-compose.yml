@@ -32,9 +32,6 @@ services:
       - db-data:/var/lib/postgresql/data/
     networks:
       - movies-network
-    # TODO: close all ports after development
-    ports:
-      - '5432:5432'
     environment:
       - POSTGRES_DB
       - POSTGRES_USER

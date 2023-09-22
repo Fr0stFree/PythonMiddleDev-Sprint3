@@ -1,8 +1,8 @@
 from typing import Any
 
+from django.db.models import QuerySet
 from django.views.generic.detail import BaseDetailView
 from django.views.generic.list import BaseListView
-from django.db.models import QuerySet
 
 from movies.models import FilmWork
 from .mixins import MoviesApiMixin
