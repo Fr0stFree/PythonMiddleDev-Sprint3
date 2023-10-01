@@ -1,5 +1,5 @@
 version: '3.7'
-name: 'movies-project'
+name: 'cinema'
 
 services:
   backend:
@@ -10,7 +10,7 @@ services:
       - static:/opt/app/static
       - media:/opt/app/media
     networks:
-      - movies-network
+      - cinema-network
     depends_on:
       - db
     environment:
@@ -31,13 +31,25 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data/
     networks:
-      - movies-network
+      - cinema-network
     environment:
       - POSTGRES_DB
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_HOST
       - POSTGRES_PORT
+
+  elastic-search:
+    image: elasticsearch:${ELASTIC_SEARCH_TAG}
+    container_name: elastic-search
+    restart: always
+    networks:
+      - cinema-network
+    ports:
+      - '9200:9200'
+    environment:
+      - discovery.type=${ELASTIC_SEARCH_DISCOVERY_TYPE}
+      - xpack.security.enabled=${ELASTIC_SEARCH_XPACK_SECURITY_ENABLED}
 
   nginx:
     image: nginx:${NGINX_TAG}
@@ -53,12 +65,12 @@ services:
     ports:
       - '80:80'
     networks:
-      - movies-network
+      - cinema-network
     environment:
       - NGINX_HOST
 
 networks:
-  movies-network:
+  cinema-network:
     driver: bridge
 
 volumes:
