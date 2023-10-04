@@ -30,6 +30,8 @@ services:
     restart: always
     volumes:
       - db-data:/var/lib/postgresql/data/
+    ports:
+      - '5432:5432'
     networks:
       - cinema-network
     environment:
@@ -39,18 +41,18 @@ services:
       - POSTGRES_HOST
       - POSTGRES_PORT
 
-  elastic-search:
-    image: elasticsearch:${ELASTIC_SEARCH_TAG}
-    container_name: elastic-search
-    restart: always
-    networks:
-      - cinema-network
-    ports:
-      - '9200:9200'
-    environment:
-      - discovery.type=${ELASTIC_SEARCH_DISCOVERY_TYPE}
-      - xpack.security.enabled=${ELASTIC_SEARCH_XPACK_SECURITY_ENABLED}
-
+#  elastic-search:
+#    image: elasticsearch:${ELASTIC_SEARCH_TAG}
+#    container_name: elastic-search
+#    restart: always
+#    networks:
+#      - cinema-network
+#    ports:
+#      - '9200:9200'
+#    environment:
+#      - discovery.type=${ELASTIC_SEARCH_DISCOVERY_TYPE}
+#      - xpack.security.enabled=${ELASTIC_SEARCH_XPACK_SECURITY_ENABLED}
+#
   nginx:
     image: nginx:${NGINX_TAG}
     container_name: nginx
