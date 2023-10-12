@@ -13,6 +13,15 @@ start-db:
 stop-db:
 	@docker compose -f $(COMPOSE_FILE_PATH) --env-file $(ENV_FILE_PATH) stop db
 
+
+.PHONY: start-backend
+start-backend:
+	@docker compose -f $(COMPOSE_FILE_PATH) --env-file $(ENV_FILE_PATH) up backend
+
+.PHONY: stop-backend
+stop-backend:
+	@docker compose -f $(COMPOSE_FILE_PATH) --env-file $(ENV_FILE_PATH) stop backend
+
 .PHONY: start
 start:
 	@docker compose -f $(COMPOSE_FILE_PATH) --env-file $(ENV_FILE_PATH) up -d
