@@ -1,18 +1,28 @@
 import asyncio
 import datetime as dt
+from typing import Final
 
 from app import Extractor, Transformer, Loader, settings
 
 
-async def main() -> None:
-    async with Extractor(settings.postgres_dsn) as extractor:
-        records = await extractor.extract_updated_records(newer_than=dt.datetime.min)
+BATCH_SIZE: Final[int] = 100
 
-    async with Transformer() as transformer:
-        models = transformer.transform_records(records)
+
+async def main() -> None:
+    transformer = Transformer()
+
+    async with Extractor(settings.postgres_dsn) as extractor:
+        async for records in extractor.extract_records(newer_than=dt.datetime.min, batch_size=BATCH_SIZE):
+            transformer.process(records)
+
+    transformed_records = transformer.result
 
     async with Loader(settings.elastic_dsn) as loader:
-        await loader.update_index(settings.elastic_search_movies_index, models)
+        await loader.update_index(
+            index=settings.elastic_search_movies_index_name,
+            models=transformed_records,
+            schema=settings.elastic_search_movies_index_schema,
+        )
 
 
 if __name__ == "__main__":

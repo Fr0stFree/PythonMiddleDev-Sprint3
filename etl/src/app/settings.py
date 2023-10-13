@@ -1,7 +1,12 @@
+from pathlib import Path
+import json
+
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
+    base_dir: Path = Path(__file__).parent.parent
+
     postgres_user: str
     postgres_password: str
     postgres_host: str
@@ -10,7 +15,10 @@ class Settings(BaseSettings):
 
     elastic_search_host: str
     elastic_search_port: int
-    elastic_search_movies_index: str
+    elastic_search_movies_index_name: str = "movies"
+    elastic_search_movies_index_schema: dict = json.loads(
+        (base_dir / "app" / "elastic_movies_schema.json").read_text()
+    )
 
     @property
     def postgres_dsn(self) -> str:
@@ -18,7 +26,7 @@ class Settings(BaseSettings):
 
     @property
     def elastic_dsn(self) -> str:
-        pass
+        return f"http://{self.elastic_search_host}:{self.elastic_search_port}"
 
 
 settings = Settings()
