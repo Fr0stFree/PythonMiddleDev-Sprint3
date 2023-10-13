@@ -20,6 +20,10 @@ class Settings(BaseSettings):
         (base_dir / "app" / "elastic_movies_schema.json").read_text()
     )
 
+    redis_host: str
+    redis_port: int
+    redis_db: int
+
     @property
     def postgres_dsn(self) -> str:
         return f"postgres://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
@@ -27,6 +31,10 @@ class Settings(BaseSettings):
     @property
     def elastic_dsn(self) -> str:
         return f"http://{self.elastic_search_host}:{self.elastic_search_port}"
+
+    @property
+    def redis_dsn(self) -> str:
+        return f"redis://{self.redis_host}:{self.redis_port}/{self.redis_db}"
 
 
 settings = Settings()

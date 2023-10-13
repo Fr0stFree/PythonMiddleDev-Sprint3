@@ -41,6 +41,15 @@ services:
       - POSTGRES_HOST
       - POSTGRES_PORT
 
+  redis:
+    image: redis:${REDIS_TAG}
+    container_name: redis
+    restart: always
+    ports:
+      - '6379:6379'
+    networks:
+      - cinema-network
+
   elastic-search:
     image: elasticsearch:${ELASTIC_SEARCH_TAG}
     container_name: elastic-search
