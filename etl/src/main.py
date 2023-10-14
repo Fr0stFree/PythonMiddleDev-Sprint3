@@ -1,42 +1,42 @@
 import asyncio
 import datetime as dt
-from typing import Final
+import logging
 
-from app import Extractor, Transformer, Loader, settings
-from app.utils import backoff
-from app.persistence import BasePersistence, RedisPersistence
-
-
-BATCH_SIZE: Final[int] = 100
-
-
-@backoff(Exception)
-async def run_etl(last_modified: dt.datetime) -> None:
-    async with Extractor(settings.postgres_dsn) as extractor, Loader(settings.postgres_dsn) as loader:
-        transformer = Transformer()
-
-        async for records in extractor.extract_records(newer_than=last_modified, batch_size=BATCH_SIZE):
-            transformer.process(records)
-
-        await loader.update_index(
-            index=settings.elastic_search_movies_index_name,
-            models=transformer.result,
-            schema=settings.elastic_search_movies_index_schema,
-        )
+from core import Settings
+from core.logs import setup_logging
+from core.persistence import RedisPersistence
+from etl import run_etl
+from extractor import Extractor
+from loader import Loader
+from transformer import Transformer
 
 
 async def main() -> None:
-    persistence: BasePersistence = RedisPersistence(settings.redis_dsn)
-    while True:
-        state = persistence.retrieve_state()
-        last_modified = state.get("last_modified", dt.datetime.min)
-        try:
-            await run_etl(last_modified)
-        except Exception as error:
-            print(f"Encountered error: {error}")
-        else:
-            persistence.save_state({"last_modified": dt.datetime.now()})
-            print("Successfully finished ETL cycle")
+    settings = Settings()
+    setup_logging(settings.log_level)
+
+    logger = logging.getLogger(__name__)
+
+    async with (
+        Extractor(settings.postgres_dsn) as extractor,
+        Loader(settings.elastic_dsn, *settings.elastic_index) as loader,
+        RedisPersistence(settings.redis_dsn) as persistence,
+    ):
+        while True:
+            try:
+                with Transformer() as transformer:
+                    await run_etl(extractor, transformer, loader, persistence)
+            except Exception as error:
+                logger.exception(error)
+                timeout = settings.etl_interval.total_seconds() * 3
+                logger.exception(f"Encountered an unexpected error.\n"
+                                 f"Retrying in {timeout} seconds...")
+            else:
+                timeout = settings.etl_interval.total_seconds()
+                logger.info("ETL cycle completed successfully.\n"
+                            f"Sleeping for {settings.etl_interval.total_seconds()} seconds...")
+            finally:
+                await asyncio.sleep(timeout)
 
 
 if __name__ == "__main__":
