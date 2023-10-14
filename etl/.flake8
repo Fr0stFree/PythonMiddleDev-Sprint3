@@ -20,4 +20,4 @@ exclude =
     venv,
     manage.py
 max-complexity = 10
-max-line-length = 79
+max-line-length = 120

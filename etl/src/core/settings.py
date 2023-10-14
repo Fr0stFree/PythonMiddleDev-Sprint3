@@ -22,9 +22,7 @@ class Settings(BaseSettings):
     elastic_search_host: str
     elastic_search_port: int
     elastic_search_movies_index_name: str = "movies"
-    elastic_search_movies_index_schema: dict = json.loads(
-        (base_dir / "core" / "movies_index_schema.json").read_text()
-    )
+    elastic_search_movies_index_schema: dict = json.loads((base_dir / "core" / "movies_index_schema.json").read_text())
 
     redis_host: str
     redis_port: int
@@ -32,7 +30,8 @@ class Settings(BaseSettings):
 
     @property
     def postgres_dsn(self) -> str:
-        return f"postgres://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
+        return (f"postgres://{self.postgres_user}:{self.postgres_password}"
+                f"@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}")
 
     @property
     def elastic_dsn(self) -> str:
