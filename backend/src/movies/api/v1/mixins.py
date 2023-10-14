@@ -7,7 +7,5 @@ class MoviesApiMixin:
     http_method_names = ["get"]
     model = FilmWork
 
-    def render_to_response(
-        self, context: dict, **response_kwargs
-    ) -> JsonResponse:
+    def render_to_response(self, context: dict, **response_kwargs) -> JsonResponse:
         return JsonResponse(context)

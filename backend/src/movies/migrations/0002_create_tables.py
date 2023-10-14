@@ -19,15 +19,11 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "modified",
-                    models.DateTimeField(
-                        auto_now=True, verbose_name="modified"
-                    ),
+                    models.DateTimeField(auto_now=True, verbose_name="modified"),
                 ),
                 (
                     "created",
-                    models.DateTimeField(
-                        auto_now_add=True, verbose_name="created"
-                    ),
+                    models.DateTimeField(auto_now_add=True, verbose_name="created"),
                 ),
                 (
                     "id",
@@ -48,15 +44,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "description",
-                    models.TextField(
-                        blank=True, default="", verbose_name="description"
-                    ),
+                    models.TextField(blank=True, default="", verbose_name="description"),
                 ),
                 (
                     "creation_date",
-                    models.DateField(
-                        db_index=True, null=True, verbose_name="creation_date"
-                    ),
+                    models.DateField(db_index=True, null=True, verbose_name="creation_date"),
                 ),
                 (
                     "rating",
@@ -83,15 +75,11 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "modified",
-                    models.DateTimeField(
-                        auto_now=True, verbose_name="modified"
-                    ),
+                    models.DateTimeField(auto_now=True, verbose_name="modified"),
                 ),
                 (
                     "created",
-                    models.DateTimeField(
-                        auto_now_add=True, verbose_name="created"
-                    ),
+                    models.DateTimeField(auto_now_add=True, verbose_name="created"),
                 ),
                 (
                     "id",
@@ -108,9 +96,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "description",
-                    models.TextField(
-                        blank=True, default="", verbose_name="description"
-                    ),
+                    models.TextField(blank=True, default="", verbose_name="description"),
                 ),
             ],
             options={
@@ -124,15 +110,11 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "modified",
-                    models.DateTimeField(
-                        auto_now=True, verbose_name="modified"
-                    ),
+                    models.DateTimeField(auto_now=True, verbose_name="modified"),
                 ),
                 (
                     "created",
-                    models.DateTimeField(
-                        auto_now_add=True, verbose_name="created"
-                    ),
+                    models.DateTimeField(auto_now_add=True, verbose_name="created"),
                 ),
                 (
                     "id",
@@ -168,9 +150,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "created",
-                    models.DateTimeField(
-                        auto_now_add=True, verbose_name="created"
-                    ),
+                    models.DateTimeField(auto_now_add=True, verbose_name="created"),
                 ),
                 (
                     "role",
@@ -222,9 +202,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "created",
-                    models.DateTimeField(
-                        auto_now_add=True, verbose_name="created"
-                    ),
+                    models.DateTimeField(auto_now_add=True, verbose_name="created"),
                 ),
                 (
                     "film_work",

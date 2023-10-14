@@ -6,8 +6,8 @@ from typing_extensions import Self
 from loguru import logger
 
 from common.decorators import raise_on_error
+from common.exceptions import PostgresConnectionError
 from .datatypes import PersonRecord, FilmWorkRecord, InfoRecord
-from .exceptions import PostgresConnectionError
 from .iextractor import BaseExtractor
 
 
@@ -33,7 +33,7 @@ class Extractor(BaseExtractor):
         modified_persons = await self._extract_modified_persons(newer_than)
         modified_film_works = await self._extract_film_work_ids_by_related_person(modified_persons)
         async for records in self._extract_records_by_related_film_works(modified_film_works):
-            logger.debug(f"Extracted {len(records)} records.")
+            logger.debug(f"Fetched {len(records)} records.")
             yield records
 
     @raise_on_error(PostgresConnectionError("Failed to extract persons from PostgreSQL"))

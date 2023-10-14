@@ -1,11 +1,10 @@
 import datetime as dt
 
 from common.decorators import backoff
+from common.exceptions import ElasticConnectionError, PostgresConnectionError
 from core.persistence import BasePersistence
 from extractor import BaseExtractor
-from extractor.exceptions import PostgresConnectionError
 from loader import BaseLoader
-from loader.exceptions import ElasticConnectionError
 from transformer import BaseTransformer
 
 

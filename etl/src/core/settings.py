@@ -17,12 +17,11 @@ class Settings(BaseSettings):
     postgres_host: str
     postgres_port: int
     postgres_db: str
-    batch_size: int = 100
 
     elastic_search_host: str
     elastic_search_port: int
-    elastic_search_movies_index_name: str = "movies"
-    elastic_search_movies_index_schema: dict = json.loads((base_dir / "core" / "movies_index_schema.json").read_text())
+    elastic_search_movies_index: str
+    elastic_search_movies_index_path: Path
 
     redis_host: str
     redis_port: int
@@ -39,7 +38,9 @@ class Settings(BaseSettings):
 
     @property
     def elastic_index(self) -> tuple[str, dict]:
-        return self.elastic_search_movies_index_name, self.elastic_search_movies_index_schema
+        with open(self.elastic_search_movies_index_path, "r", encoding="utf-8") as f:
+            movies_index_schema: dict = json.load(f)
+        return self.elastic_search_movies_index, movies_index_schema
 
     @property
     def redis_dsn(self) -> str:

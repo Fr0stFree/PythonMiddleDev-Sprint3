@@ -25,6 +25,4 @@ COPY src .
 
 EXPOSE 8000
 
-#ENTRYPOINT ["./run_uwsgi.sh"]
-
-ENTRYPOINT ["python", "src/manage.py", "runserver"]
+ENTRYPOINT ["./run_uwsgi.sh"]

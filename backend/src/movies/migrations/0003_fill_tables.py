@@ -12,9 +12,7 @@ from django.db import migrations
 
 from utils.functions import to_snake_case
 
-SQLITE_FILE_PATH: Final[Path] = (
-    settings.BASE_DIR / "movies" / "fixtures" / "initial_movies.sqlite"
-)
+SQLITE_FILE_PATH: Final[Path] = settings.BASE_DIR / "movies" / "fixtures" / "initial_movies.sqlite"
 CHUNK_SIZE: Final[int] = 100
 
 
@@ -121,9 +119,7 @@ def fill_movies(apps, schema_editor) -> None:
     with closing(Connection(SQLITE_FILE_PATH)) as connection:
         for sqlite_model in SQLITE_MODELS:
             Model = apps.get_model("movies", sqlite_model.__name__)  # noqa
-            extractor = sqlite_extractor(
-                connection, sqlite_model, chunk_size=CHUNK_SIZE
-            )
+            extractor = sqlite_extractor(connection, sqlite_model, chunk_size=CHUNK_SIZE)
 
             for chunk in extractor:
                 Model.objects.bulk_create(

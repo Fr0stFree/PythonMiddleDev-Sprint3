@@ -7,7 +7,7 @@ from typing_extensions import Self, Final
 from loguru import logger
 
 from common.decorators import raise_on_error
-from .exceptions import ElasticConnectionError
+from common.exceptions import ElasticConnectionError
 from .iloader import BaseLoader
 from .models import MovieModel
 
