@@ -1,10 +1,11 @@
 import asyncio
+import logging
 from asyncio import Semaphore
-from typing import Sequence
+from types import TracebackType
+from typing import Sequence, Optional, Type
 
 from elasticsearch import AsyncElasticsearch
 from typing_extensions import Self, Final
-from loguru import logger
 
 from common.decorators import raise_on_error
 from common.exceptions import ElasticConnectionError
@@ -20,19 +21,25 @@ class Loader(BaseLoader):
         self._index = index
         self._schema = schema
         self._es: AsyncElasticsearch | None = None
+        self._logger = logging.getLogger(__name__)
 
     async def __aenter__(self) -> Self:
-        logger.debug(f"Connecting to {self._dsn}...")
+        self._logger.debug("Connecting to %s...", self._dsn)
         self._es = AsyncElasticsearch(self._dsn)
         await self._es.ping()
-        logger.info("Connected to ElasticSearch successfully.")
+        self._logger.info("Connected to ElasticSearch successfully.")
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
-        logger.debug("Closing connection to ElasticSearch...")
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> None:
+        self._logger.debug("Closing connection to ElasticSearch...")
         await self._es.close()
         self._es = None
-        logger.info("Connection to ElasticSearch closed.")
+        self._logger.info("Connection to ElasticSearch closed.")
 
     async def update_index(self, documents: Sequence[MovieModel]) -> None:
         await self._create_index_if_not_exists()
@@ -40,9 +47,9 @@ class Loader(BaseLoader):
         semaphore = asyncio.Semaphore(self.SEMAPHORE_LIMIT)
 
         coroutines = [self._load_document(document, semaphore) for document in documents]
-        logger.info(f"Loading {len(documents)} documents to ElasticSearch...")
+        self._logger.info("Loading %s documents to ElasticSearch...", len(documents))
         await asyncio.gather(*coroutines)
-        logger.info(f"Loaded {len(documents)} documents to ElasticSearch successfully.")
+        self._logger.info("Loaded %s documents to ElasticSearch successfully.", len(documents))
 
     @raise_on_error(ElasticConnectionError("Failed to load document to ElasticSearch"))
     async def _load_document(self, document: MovieModel, semaphore: Semaphore) -> None:
@@ -51,11 +58,11 @@ class Loader(BaseLoader):
 
     @raise_on_error(ElasticConnectionError("Failed to create index in ElasticSearch"))
     async def _create_index_if_not_exists(self) -> None:
-        logger.debug(f"Checking index '{self._index}' in ElasticSearch...")
+        self._logger.debug("Checking index '%s' in ElasticSearch...", self._index)
         is_exist = await self._es.indices.exists(index=self._index)
         if not is_exist:
-            logger.info(f"Not found index '{self._index}' in ElasticSearch. Creating...")
+            self._logger.info("Not found index '%s' in ElasticSearch. Creating...", self._index)
             await self._es.indices.create(index=self._index, body=self._schema)
-            logger.info(f"Index '{self._index}' created successfully.")
+            self._logger.info("Index '%s' created successfully.", self._index)
         else:
-            logger.info(f"Fount index '{self._index}' in ElasticSearch.")
+            self._logger.info("Index %s already exists in ElasticSearch.", self._index)

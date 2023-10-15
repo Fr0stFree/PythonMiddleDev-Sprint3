@@ -1,9 +1,10 @@
 import datetime as dt
-from typing import AsyncGenerator
+import logging
+from types import TracebackType
+from typing import AsyncGenerator, Type, Optional
 
 import asyncpg
 from typing_extensions import Self
-from loguru import logger
 
 from common.decorators import raise_on_error
 from common.exceptions import PostgresConnectionError
@@ -16,24 +17,30 @@ class Extractor(BaseExtractor):
 
     def __init__(self, dsn: str) -> None:
         self._dsn = dsn
+        self._logger = logging.getLogger(__name__)
 
     async def __aenter__(self) -> Self:
-        logger.debug(f"Connecting to {self._dsn}...")
+        self._logger.debug("Connecting to %s...", self._dsn)
         self._connection: asyncpg.connection.Connection = await asyncpg.connect(self._dsn)
-        logger.info("Connected to PostgreSQL successfully.")
+        self._logger.info("Connected to PostgreSQL successfully.")
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
-        logger.debug("Closing connection to PostgreSQL...")
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> None:
+        self._logger.debug("Closing connection to PostgreSQL...")
         await self._connection.close()
-        logger.info("Connection to PostgreSQL closed.")
+        self._logger.info("Connection to PostgreSQL closed.")
 
     async def extract_records(self, newer_than: dt.datetime) -> AsyncGenerator[InfoRecord, None]:
-        logger.info(f"Extracting records modified since '{newer_than}'...")
+        self._logger.info("Extracting records modified since '%s'...", newer_than)
         modified_persons = await self._extract_modified_persons(newer_than)
         modified_film_works = await self._extract_film_work_ids_by_related_person(modified_persons)
         async for records in self._extract_records_by_related_film_works(modified_film_works):
-            logger.debug(f"Fetched {len(records)} records.")
+            self._logger.debug("Fetched %s records.", len(records))
             yield records
 
     @raise_on_error(PostgresConnectionError("Failed to extract persons from PostgreSQL"))
@@ -42,7 +49,7 @@ class Extractor(BaseExtractor):
             SELECT id FROM content.person WHERE modified > '{newer_than}';
         """
         person_ids = await self._connection.fetch(statement)
-        logger.debug(f"Found {len(person_ids)} modified persons since '{newer_than}'.")
+        self._logger.debug("Found %s modified persons since '%s'.", len(person_ids), newer_than)
         return person_ids
 
     @raise_on_error(PostgresConnectionError("Failed to extract film works from PostgreSQL"))
@@ -55,7 +62,7 @@ class Extractor(BaseExtractor):
             WHERE pfw.person_id IN ({persons});
         """
         film_work_ids = await self._connection.fetch(statement)
-        logger.debug(f"Found {len(film_work_ids)} modified film works by related persons.")
+        self._logger.debug("Found %s modified film works by related persons.", len(film_work_ids))
         return film_work_ids
 
     async def _extract_records_by_related_film_works(

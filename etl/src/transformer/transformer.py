@@ -1,7 +1,8 @@
-from typing import Sequence
+import logging
+from types import TracebackType
+from typing import Sequence, Type, Optional
 from uuid import UUID
 
-from loguru import logger
 from typing_extensions import Self
 
 from extractor.datatypes import InfoRecord
@@ -10,11 +11,19 @@ from .itransformer import BaseTransformer
 
 
 class Transformer(BaseTransformer):
+    def __init__(self) -> None:
+        self._logger = logging.getLogger(__name__)
+
     def __enter__(self) -> Self:
         self._model_storage: dict[UUID, MovieModel] = {}
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> None:
         self._model_storage.clear()
 
     def process(self, records: Sequence[InfoRecord]) -> None:
@@ -23,7 +32,7 @@ class Transformer(BaseTransformer):
             self._enrich_model(model, record)
             self._save_model(model)
 
-        logger.info(f"Transformed {len(records)} records successfully. Total transformed: {len(self._model_storage)}")
+        self._logger.info("Transformed %s records successfully.", len(records))
 
     def _get_model(self, record: InfoRecord) -> MovieModel:
         if (model := self._model_storage.get(record["film_work_id"])) is not None:
@@ -46,14 +55,16 @@ class Transformer(BaseTransformer):
 
             case "actor":
                 person = PersonModel(id=record["person_id"], name=record["person_full_name"])
-                model.actors.append(person)
-                model.actors_names = ", ".join([person.name for person in model.actors])
+                if person not in model.actors:
+                    model.actors.append(person)
+                    model.actors_names = ", ".join([person.name for person in model.actors])
 
             case "writer":
                 person = PersonModel(id=record["person_id"], name=record["person_full_name"])
-                model.writers.append(person)
-                model.writers_names = ", ".join([person.name for person in model.writers])
+                if person not in model.writers:
+                    model.writers.append(person)
+                    model.writers_names = ", ".join([person.name for person in model.writers])
 
     def to_json(self) -> list[MovieModel]:
-        logger.debug(f"Converting {len(self._model_storage)} models to JSON...")
+        self._logger.debug("Converting %s models to JSON...", len(self._model_storage))
         return list(self._model_storage.values())

@@ -1,6 +1,5 @@
 import asyncio
-
-from loguru import logger
+import logging
 
 from core import Settings
 from core.persistence import RedisPersistence
@@ -12,6 +11,9 @@ from transformer import Transformer
 
 async def main() -> None:
     settings = Settings()
+    settings.configure_logging()
+
+    logger = logging.getLogger(__name__)
 
     async with (
         Extractor(settings.postgres_dsn) as extractor,
@@ -25,10 +27,10 @@ async def main() -> None:
             except Exception as error:
                 logger.exception(error)
                 timeout = settings.etl_interval.total_seconds() * 3
-                logger.error(f"Encountered an unexpected error. Retrying in {timeout} seconds...")
+                logger.error("Encountered an unexpected error. Retrying in %s seconds...", timeout)
             else:
                 timeout = settings.etl_interval.total_seconds()
-                logger.info(f"ETL cycle completed successfully. Sleeping for {timeout} seconds...")
+                logger.info("ETL cycle completed successfully. Sleeping for %s seconds...", timeout)
             finally:
                 await asyncio.sleep(timeout)
 

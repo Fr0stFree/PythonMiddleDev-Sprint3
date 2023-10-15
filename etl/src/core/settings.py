@@ -1,5 +1,6 @@
 import datetime as dt
 import json
+from logging.config import dictConfig
 from pathlib import Path
 
 from pydantic_settings import BaseSettings
@@ -29,8 +30,10 @@ class Settings(BaseSettings):
 
     @property
     def postgres_dsn(self) -> str:
-        return (f"postgres://{self.postgres_user}:{self.postgres_password}"
-                f"@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}")
+        return (
+            f"postgres://{self.postgres_user}:{self.postgres_password}"
+            f"@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
+        )
 
     @property
     def elastic_dsn(self) -> str:
@@ -45,3 +48,21 @@ class Settings(BaseSettings):
     @property
     def redis_dsn(self) -> str:
         return f"redis://{self.redis_host}:{self.redis_port}/{self.redis_db}"
+
+    def configure_logging(self) -> None:
+        dictConfig(
+            {
+                "version": 1,
+                "root": {
+                    "handlers": ["console"],
+                    "level": self.log_level,
+                },
+                "handlers": {"console": {"formatter": "std_out", "class": "logging.StreamHandler", "level": "DEBUG"}},
+                "formatters": {
+                    "std_out": {
+                        "format": "%(asctime)s | %(levelname)s | %(module)s.%(funcName)s.%(lineno)d - %(message)s",
+                        "datefmt": "%d-%m-%Y %I:%M:%S",
+                    }
+                },
+            }
+        )

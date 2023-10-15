@@ -1,9 +1,10 @@
+import logging
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Final
+from types import TracebackType
+from typing import Any, Dict, Final, Type, Optional
 
 import redis.asyncio as aioredis
 from typing_extensions import Self
-from loguru import logger
 
 
 class BasePersistence(ABC):
@@ -23,27 +24,33 @@ class RedisPersistence(BasePersistence):
 
     def __init__(self, dsn: str) -> None:
         self._dsn = dsn
+        self._logger = logging.getLogger(__name__)
 
     async def __aenter__(self) -> Self:
-        logger.debug(f"Connecting to {self._dsn}...")
+        self._logger.debug("Connecting to %s...", self._dsn)
         self._redis = await aioredis.from_url(self._dsn)
         await self._redis.ping()
-        logger.info("Connected to Redis successfully.")
+        self._logger.info("Connected to Redis successfully.")
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
-        logger.debug("Closing connection to Redis...")
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> None:
+        self._logger.debug("Closing connection to Redis...")
         await self._redis.close()
         self._redis = None
-        logger.info("Connection to Redis closed.")
+        self._logger.info("Connection to Redis closed.")
 
     async def save_state(self, state: Dict[str, Any]) -> None:
-        logger.debug(f"Saving state to Redis: {state}")
+        self._logger.debug("Saving state to Redis: <%s>...", state)
         await self._redis.hset(self.STATE_KEY, mapping=state)
-        logger.info("State saved successfully.")
+        self._logger.info("State saved successfully.")
 
     async def retrieve_state(self) -> Dict[str, Any]:
-        logger.debug(f"Retrieving {self.STATE_KEY} state from Redis...")
+        self._logger.debug("Retrieving '%s' state from Redis...", self.STATE_KEY)
         state = await self._redis.hgetall(self.STATE_KEY)
-        logger.info(f"Retrieved {self.STATE_KEY} state successfully. State: {state}")
+        self._logger.info("Retrieved '%s' state successfully. State: <%s>", self.STATE_KEY, state)
         return state
