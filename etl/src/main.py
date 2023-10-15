@@ -25,12 +25,10 @@ async def main() -> None:
             except Exception as error:
                 logger.exception(error)
                 timeout = settings.etl_interval.total_seconds() * 3
-                logger.exception(f"Encountered an unexpected error. Retrying in {timeout} seconds...")
+                logger.error(f"Encountered an unexpected error. Retrying in {timeout} seconds...")
             else:
                 timeout = settings.etl_interval.total_seconds()
-                logger.info(
-                    f"ETL cycle completed successfully. Sleeping for {settings.etl_interval.total_seconds()} seconds..."
-                )
+                logger.info(f"ETL cycle completed successfully. Sleeping for {timeout} seconds...")
             finally:
                 await asyncio.sleep(timeout)
 

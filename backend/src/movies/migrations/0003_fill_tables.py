@@ -124,7 +124,6 @@ def fill_movies(apps, schema_editor) -> None:
             for chunk in extractor:
                 Model.objects.bulk_create(
                     [Model(**item.to_pg_repr()) for item in chunk],
-                    ignore_conflicts=True,
                     batch_size=CHUNK_SIZE,
                 )
 
