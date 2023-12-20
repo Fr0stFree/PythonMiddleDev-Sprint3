@@ -9,6 +9,7 @@ DEBUG = env.bool("DEBUG", default=True)
 
 base_settings: tuple[str, ...] = (
     "components/common.py",
+    "components/auth.py",
     "components/database.py",
     "components/apps.py",
     "components/middleware.py",

@@ -1,5 +1,5 @@
 version: '3.7'
-name: 'cinema'
+name: 'cinema-admin'
 
 services:
   backend:
@@ -23,6 +23,8 @@ services:
       - POSTGRES_HOST
       - POSTGRES_PORT
       - POSTGRES_SEARCH_PATHS
+      - AUTH_API_LOGIN_URL
+      - AUTH_API_USER_INFO
 
   etl:
     build: ./etl
